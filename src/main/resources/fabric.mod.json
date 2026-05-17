@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "lifemod",
+	"version": "${version}",
+	"name": "lifemod",
+	"description": "A testing mod for now",
+	"authors": [
+		"Yadsoja"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "MIT",
+	"icon": "assets/lifemod/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"net.yadsoja.lifemod.Lifemod"
+		],
+		"fabric-datagen": [
+			"net.yadsoja.lifemod.LifemodDataGenerator"
+		],
+		"client": [
+			"net.yadsoja.lifemod.LifemodClient"
+		]
+	},
+	"mixins": [
+		"lifemod.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.2",
+		"minecraft": "~1.21.11",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}
