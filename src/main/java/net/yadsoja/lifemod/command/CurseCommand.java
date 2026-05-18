@@ -50,9 +50,17 @@ public class CurseCommand {
 
                                 // /curse add freeze
                                 .then(CommandManager.argument("curse", StringArgumentType.word())
+                                        .suggests((context, builder) -> {
+
+                                            for (String curse : CurseManager.availableCurses) {
+                                                builder.suggest(curse);
+                                            }
+
+                                            return builder.buildFuture();
+                                        })
                                         .executes(ctx -> {
 
-                                            String curse = StringArgumentType.getString(ctx, "curse");
+                                            String curse = StringArgumentType.getString(ctx, "curse").toLowerCase();
 
                                             if (!CurseManager.availableCurses.contains(curse)) {
                                                 ctx.getSource().sendFeedback(
@@ -88,9 +96,17 @@ public class CurseCommand {
 
                                 // /curse remove freeze
                                 .then(CommandManager.argument("curse", StringArgumentType.word())
+                                        .suggests((context, builder) -> {
+
+                                            for (String curse : CurseManager.activeCurses) {
+                                                builder.suggest(curse);
+                                            }
+
+                                            return builder.buildFuture();
+                                        })
                                         .executes(ctx -> {
 
-                                            String curse = StringArgumentType.getString(ctx, "curse");
+                                            String curse = StringArgumentType.getString(ctx, "curse").toLowerCase();
 
                                             if (!CurseManager.activeCurses.contains(curse)) {
                                                 ctx.getSource().sendFeedback(
@@ -114,6 +130,19 @@ public class CurseCommand {
 
                         // /curse timer <minutes>
                         .then(CommandManager.literal("timer")
+
+                                // /curse timer  -> show current value
+                                .executes(ctx -> {
+
+                                    ctx.getSource().sendFeedback(
+                                            () -> Text.literal("Current curse timer: " + CurseManager.timerMinutes + " minutes"),
+                                            false
+                                    );
+
+                                    return 1;
+                                })
+
+                                // /curse timer <minutes>
                                 .then(CommandManager.argument("minutes", IntegerArgumentType.integer(1, 1440))
                                         .executes(ctx -> {
 
