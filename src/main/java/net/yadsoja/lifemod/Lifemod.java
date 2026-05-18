@@ -24,5 +24,6 @@ public class Lifemod implements ModInitializer {
 		});
 
 		CurseScheduler.init();
+		FreezeCurseHandler.init();
 	}
 }
