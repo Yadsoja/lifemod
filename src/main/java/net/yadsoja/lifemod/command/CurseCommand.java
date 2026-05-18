@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import net.yadsoja.lifemod.curse.CurseManager;
 
+import static net.yadsoja.lifemod.curse.CurseScheduler.BroadcastTitle;
+
 public class CurseCommand {
 
     public static void register(CommandDispatcher<ServerCommandSource> dispatcher) {
@@ -23,12 +25,16 @@ public class CurseCommand {
                                     () -> Text.literal(
                                             """
                                             §6=== Curse System ===
-                                            /curse add
-                                            /curse add <name>
-                                            /curse remove
-                                            /curse remove <name>
-                                            /curse timer <minutes>
-                                            /curse toggle
+                                            /curse                  -> affiche l'aide
+                                            /curse add             -> liste des curses disponibles
+                                            /curse add <name>      -> active une curse
+                                            /curse add amount <n>  -> active plusieurs curses aléatoires
+                                            /curse remove          -> liste les curses actives
+                                            /curse remove type <name> -> retire une curse spécifique
+                                            /curse remove amount <n> -> retire n curses aléatoires
+                                            /curse timer           -> affiche le timer actuel
+                                            /curse timer <minutes> -> définit le timer
+                                            /curse toggle          -> active/désactive l'automatisation
                                             """
                                     ),
                                     false
@@ -78,6 +84,7 @@ public class CurseCommand {
                                                         String curse = available.get(i);
 
                                                         CurseManager.add(curse);
+                                                        BroadcastTitle(curse);
 
                                                         added++;
                                                     }
@@ -127,6 +134,7 @@ public class CurseCommand {
                                                     }
 
                                                     CurseManager.add(curse);
+                                                    BroadcastTitle(curse);
 
                                                     ctx.getSource().sendFeedback(
                                                             () -> Text.literal("Added curse: " + curse),

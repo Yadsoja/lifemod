@@ -2,10 +2,13 @@ package net.yadsoja.lifemod.curse;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.network.packet.s2c.play.SubtitleS2CPacket;
+import net.minecraft.network.packet.s2c.play.TitleFadeS2CPacket;
 import net.minecraft.network.packet.s2c.play.TitleS2CPacket;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.Text;
+import net.yadsoja.lifemod.utils.ModContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +46,6 @@ public class CurseScheduler {
         if (available.isEmpty()) {
 
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-
                 player.sendMessage(Text.literal("Aucune malédiction disponible."), true);
             }
 
@@ -51,19 +53,29 @@ public class CurseScheduler {
         }
 
         String curse = available.get(random.nextInt(available.size()));
-
         CurseManager.add(curse);
+        BroadcastTitle(curse);
+    }
+    public static void BroadcastTitle(String text) {
+
+        MinecraftServer server = ModContext.server;
+
+        if (server == null) return;
 
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-            player.playSound(net.minecraft.sound.SoundEvents.ENTITY_WITHER_SPAWN, 1f, 1f);
-            // TITLE
+
+            player.playSound(SoundEvents.ENTITY_ZOMBIE_VILLAGER_CURE, 1f, 1f);
+
             player.networkHandler.sendPacket(
-                    new TitleS2CPacket(Text.literal("Une MALEDICTION s'est abattue"))
+                    new TitleS2CPacket(Text.literal("§cCURSE ACTIVATED"))
             );
 
-            // SUBTITLE
             player.networkHandler.sendPacket(
-                    new SubtitleS2CPacket(Text.literal(curse))
+                    new SubtitleS2CPacket(Text.literal(text))
+            );
+
+            player.networkHandler.sendPacket(
+                    new TitleFadeS2CPacket(10, 40, 10)
             );
         }
     }

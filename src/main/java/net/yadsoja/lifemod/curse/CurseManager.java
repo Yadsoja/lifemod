@@ -1,5 +1,10 @@
 package net.yadsoja.lifemod.curse;
 
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.sound.SoundEvents;
+import net.minecraft.text.Text;
+
 import java.util.HashSet;
 import java.util.Set;
 
