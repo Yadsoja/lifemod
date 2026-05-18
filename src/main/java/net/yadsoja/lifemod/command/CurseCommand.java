@@ -10,8 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import net.yadsoja.lifemod.curse.CurseManager;
 
-import static net.yadsoja.lifemod.curse.CurseScheduler.BroadcastSound;
-import static net.yadsoja.lifemod.curse.CurseScheduler.BroadcastTitle;
+import static net.yadsoja.lifemod.curse.CurseScheduler.*;
 
 public class CurseCommand {
 
@@ -85,8 +84,7 @@ public class CurseCommand {
                                                         String curse = available.get(i);
 
                                                         CurseManager.add(curse);
-                                                        BroadcastTitle("§cCURSE ACTIVATED",curse);
-                                                        BroadcastSound("curse");
+                                                        playCurseIntro(curse);
                                                         added++;
                                                     }
 
@@ -135,8 +133,7 @@ public class CurseCommand {
                                                     }
 
                                                     CurseManager.add(curse);
-                                                    BroadcastTitle("§cCURSE ACTIVATED",curse);
-                                                    BroadcastSound("curse");
+                                                    playCurseIntro(curse);
                                                     ctx.getSource().sendFeedback(
                                                             () -> Text.literal("Added curse: " + curse),
                                                             false

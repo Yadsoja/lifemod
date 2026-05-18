@@ -40,17 +40,17 @@ public class CurseScheduler {
             switch (animTick) {
 
                 case 1 -> {
-                    BroadcastTitle("§a•", "");
+                    BroadcastTitle("§a⬤", "");
                     BroadcastSound("ding");
                 }
 
                 case 20 -> {
-                    BroadcastTitle("§a•   §e•", "");
+                    BroadcastTitle("§a⬤   §e⬤", "");
                     BroadcastSound("ding");
                 }
 
                 case 40 -> {
-                    BroadcastTitle("§a•   §e•   §c•", "");
+                    BroadcastTitle("§a⬤   §e⬤   §c⬤", "");
                     BroadcastSound("ding");
                 }
 
@@ -93,8 +93,7 @@ public class CurseScheduler {
 
         String curse = available.get(random.nextInt(available.size()));
         CurseManager.add(curse);
-        BroadcastTitle("§cCURSE ACTIVATED",curse);
-        BroadcastSound("curse");
+        playCurseIntro(curse);
     }
 
     public static void BroadcastTitle(String title,String subtitle) {
