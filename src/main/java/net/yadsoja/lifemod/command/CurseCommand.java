@@ -3,11 +3,11 @@ package net.yadsoja.lifemod.command;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
-
 import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
-
+import java.util.ArrayList;
+import java.util.List;
 import net.yadsoja.lifemod.curse.CurseManager;
 
 public class CurseCommand {
@@ -39,92 +39,199 @@ public class CurseCommand {
                         // /curse add
                         .then(CommandManager.literal("add")
 
-                                // /curse add => list curses
+                                // /curse add -> list curses
                                 .executes(ctx -> {
+
                                     ctx.getSource().sendFeedback(
                                             () -> Text.literal("Available curses: " + CurseManager.availableCurses),
                                             false
                                     );
+
                                     return 1;
                                 })
 
-                                // /curse add freeze
-                                .then(CommandManager.argument("curse", StringArgumentType.word())
-                                        .suggests((context, builder) -> {
-
-                                            for (String curse : CurseManager.availableCurses) {
-                                                builder.suggest(curse);
-                                            }
-
-                                            return builder.buildFuture();
-                                        })
+                                // /curse add amount <number>
+                                .then(CommandManager.literal("amount")
                                         .executes(ctx -> {
 
-                                            String curse = StringArgumentType.getString(ctx, "curse").toLowerCase();
-
-                                            if (!CurseManager.availableCurses.contains(curse)) {
-                                                ctx.getSource().sendFeedback(
-                                                        () -> Text.literal("Unknown curse: " + curse),
-                                                        false
-                                                );
-                                                return 0;
-                                            }
-
-                                            CurseManager.add(curse);
-
                                             ctx.getSource().sendFeedback(
-                                                    () -> Text.literal("Curse activated: " + curse),
+                                                    () -> Text.literal("Available curses: " + CurseManager.availableCurses),
                                                     false
                                             );
 
                                             return 1;
                                         })
+                                        .then(CommandManager.argument("count", IntegerArgumentType.integer(1))
+                                                .executes(ctx -> {
+
+                                                    int count = IntegerArgumentType.getInteger(ctx, "count");
+
+                                                    List<String> available = new ArrayList<>(CurseManager.availableCurses);
+                                                    available.removeAll(CurseManager.activeCurses);
+
+                                                    java.util.Collections.shuffle(available);
+
+                                                    int added = 0;
+
+                                                    for (int i = 0; i < count && i < available.size(); i++) {
+
+                                                        String curse = available.get(i);
+
+                                                        CurseManager.add(curse);
+
+                                                        added++;
+                                                    }
+
+                                                    final int finalAdded = added;
+
+                                                    ctx.getSource().sendFeedback(
+                                                            () -> Text.literal("Added " + finalAdded + " random curses."),
+                                                            false
+                                                    );
+
+                                                    return 1;
+                                                })
+                                        )
+                                )
+
+                                // /curse add type <curse>
+                                .then(CommandManager.literal("type")
+                                        .executes(ctx -> {
+
+                                            ctx.getSource().sendFeedback(
+                                                    () -> Text.literal("Available curses: " + CurseManager.availableCurses),
+                                                    false
+                                            );
+
+                                            return 1;
+                                        })
+                                        .then(CommandManager.argument("curse", StringArgumentType.word())
+                                                .suggests((ctx, builder) -> {
+
+                                                    for (String c : CurseManager.availableCurses) {
+                                                        builder.suggest(c);
+                                                    }
+
+                                                    return builder.buildFuture();
+                                                })
+                                                .executes(ctx -> {
+
+                                                    String curse = StringArgumentType.getString(ctx, "curse").toLowerCase();
+
+                                                    if (!CurseManager.availableCurses.contains(curse)) {
+                                                        ctx.getSource().sendFeedback(
+                                                                () -> Text.literal("Unknown curse: " + curse),
+                                                                false
+                                                        );
+                                                        return 0;
+                                                    }
+
+                                                    CurseManager.add(curse);
+
+                                                    ctx.getSource().sendFeedback(
+                                                            () -> Text.literal("Added curse: " + curse),
+                                                            false
+                                                    );
+
+                                                    return 1;
+                                                })
+                                        )
                                 )
                         )
 
                         // /curse remove
                         .then(CommandManager.literal("remove")
 
-                                // /curse remove => list active curses
+                                // /curse remove -> list
                                 .executes(ctx -> {
+
                                     ctx.getSource().sendFeedback(
                                             () -> Text.literal("Active curses: " + CurseManager.activeCurses),
                                             false
                                     );
+
                                     return 1;
                                 })
 
-                                // /curse remove freeze
-                                .then(CommandManager.argument("curse", StringArgumentType.word())
-                                        .suggests((context, builder) -> {
-
-                                            for (String curse : CurseManager.activeCurses) {
-                                                builder.suggest(curse);
-                                            }
-
-                                            return builder.buildFuture();
-                                        })
+                                // /curse remove amount <number>
+                                .then(CommandManager.literal("amount")
                                         .executes(ctx -> {
 
-                                            String curse = StringArgumentType.getString(ctx, "curse").toLowerCase();
-
-                                            if (!CurseManager.activeCurses.contains(curse)) {
-                                                ctx.getSource().sendFeedback(
-                                                        () -> Text.literal("This curse is not active: " + curse),
-                                                        false
-                                                );
-                                                return 0;
-                                            }
-
-                                            CurseManager.remove(curse);
-
                                             ctx.getSource().sendFeedback(
-                                                    () -> Text.literal("Curse removed: " + curse),
+                                                    () -> Text.literal("Active curses: " + CurseManager.activeCurses),
                                                     false
                                             );
 
                                             return 1;
                                         })
+                                        .then(CommandManager.argument("count", IntegerArgumentType.integer(1))
+                                                .executes(ctx -> {
+
+                                                    int count = IntegerArgumentType.getInteger(ctx, "count");
+
+                                                    List<String> active = new ArrayList<>(CurseManager.activeCurses);
+
+                                                    java.util.Collections.shuffle(active);
+
+                                                    int removed = 0;
+
+                                                    for (int i = 0; i < count && i < active.size(); i++) {
+                                                        CurseManager.remove(active.get(i));
+                                                        removed++;
+                                                    }
+
+                                                    final int finalRemoved = removed;
+
+                                                    ctx.getSource().sendFeedback(
+                                                            () -> Text.literal("Removed " + finalRemoved + " random curses."),
+                                                            false
+                                                    );
+
+                                                    return 1;
+                                                })
+                                        )
+                                )
+
+                                // /curse remove type <curse>
+                                .then(CommandManager.literal("type")
+                                        .executes(ctx -> {
+
+                                            ctx.getSource().sendFeedback(
+                                                    () -> Text.literal("Active curses: " + CurseManager.activeCurses),
+                                                    false
+                                            );
+
+                                            return 1;
+                                        })
+                                        .then(CommandManager.argument("curse", StringArgumentType.word())
+                                                .suggests((ctx, builder) -> {
+                                                    for (String c : CurseManager.activeCurses) {
+                                                        builder.suggest(c);
+                                                    }
+                                                    return builder.buildFuture();
+                                                })
+                                                .executes(ctx -> {
+
+                                                    String curse = StringArgumentType.getString(ctx, "curse").toLowerCase();
+
+                                                    if (!CurseManager.activeCurses.contains(curse)) {
+                                                        ctx.getSource().sendFeedback(
+                                                                () -> Text.literal("This curse is not active: " + curse),
+                                                                false
+                                                        );
+                                                        return 0;
+                                                    }
+
+                                                    CurseManager.remove(curse);
+
+                                                    ctx.getSource().sendFeedback(
+                                                            () -> Text.literal("Removed curse: " + curse),
+                                                            false
+                                                    );
+
+                                                    return 1;
+                                                })
+                                        )
                                 )
                         )
 
