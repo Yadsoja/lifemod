@@ -5,6 +5,8 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.yadsoja.lifemod.command.CurseCommand;
 
 import net.yadsoja.lifemod.curse.CurseScheduler;
+import net.yadsoja.lifemod.curse.FreezeCurseHandler;
+import net.yadsoja.lifemod.debug.DebugLightLogger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,5 +27,6 @@ public class Lifemod implements ModInitializer {
 
 		CurseScheduler.init();
 		FreezeCurseHandler.init();
+		//DebugLightLogger.init();
 	}
 }
