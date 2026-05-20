@@ -23,7 +23,7 @@ public class FreezeCurseHandler {
 
             int frozen = player.getFrozenTicks();
 
-            if (light < 5) {
+            if (light < MAX_LIGHT) {
 
                 player.setInPowderSnow(true);
                 player.setFrozenTicks(Math.min(player.getMinFreezeDamageTicks(), player.getFrozenTicks() + 3));

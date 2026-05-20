@@ -33,6 +33,7 @@ public class CurseScheduler {
     }
 
     private static void onTick(MinecraftServer server) {
+        CurseManager.tick();
         if (animRunning) {
 
             animTick++;
@@ -106,9 +107,9 @@ public class CurseScheduler {
                     new TitleS2CPacket(Text.literal(title))
             );
 
-            player.networkHandler.sendPacket(
-                    new SubtitleS2CPacket(Text.literal(subtitle))
-            );
+//            player.networkHandler.sendPacket(
+//                    new SubtitleS2CPacket(Text.literal(subtitle))
+//            );
 
             player.networkHandler.sendPacket(
                     new TitleFadeS2CPacket(10, 40, 10)

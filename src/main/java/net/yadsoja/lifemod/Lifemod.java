@@ -5,8 +5,7 @@ import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.yadsoja.lifemod.command.CurseCommand;
 
-import net.yadsoja.lifemod.curse.CurseScheduler;
-import net.yadsoja.lifemod.curse.FreezeCurseHandler;
+import net.yadsoja.lifemod.curse.*;
 import net.yadsoja.lifemod.debug.DebugLightLogger;
 import net.yadsoja.lifemod.utils.ModContext;
 import org.slf4j.Logger;
@@ -29,6 +28,10 @@ public class Lifemod implements ModInitializer {
 
 		CurseScheduler.init();
 		FreezeCurseHandler.init();
+		RightHandedCurseHandler.init();
+		MidnightCurseHandler.init();
+		GrowthCurseHandler.init();
+		PhantomCurseHandler.init();
 		ServerTickEvents.START_SERVER_TICK.register(server -> {
 			ModContext.server = server;
 		});
