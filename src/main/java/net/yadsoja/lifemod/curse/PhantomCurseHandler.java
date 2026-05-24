@@ -4,6 +4,7 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.world.rule.GameRules;
+import net.yadsoja.lifemod.curse.manager.CurseManager;
 
 public class PhantomCurseHandler {
 

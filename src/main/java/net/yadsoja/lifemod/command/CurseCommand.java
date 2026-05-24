@@ -1,5 +1,6 @@
 package net.yadsoja.lifemod.command;
 
+import net.minecraft.server.network.ServerPlayerEntity;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -8,9 +9,12 @@ import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import java.util.ArrayList;
 import java.util.List;
-import net.yadsoja.lifemod.curse.CurseManager;
 
-import static net.yadsoja.lifemod.curse.CurseScheduler.*;
+import net.yadsoja.lifemod.curse.PickyCurseHandler;
+import net.yadsoja.lifemod.curse.manager.CurseManager;
+
+import static net.yadsoja.lifemod.curse.manager.CurseScheduler.*;
+import static net.yadsoja.lifemod.utils.ModContext.server;
 
 public class CurseCommand {
 
@@ -39,11 +43,13 @@ public class CurseCommand {
                                     ),
                                     false
                             );
+                            server.getPlayerManager().broadcast(Text.literal("[DEBUG] curseState=" + PickyCurseHandler.curseState), false);
                             return 1;
                         })
 
                         // /curse add
                         .then(CommandManager.literal("add")
+                                .requires(CommandManager.requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK))
 
                                 // /curse add -> list curses
                                 .executes(ctx -> {
@@ -147,6 +153,7 @@ public class CurseCommand {
 
                         // /curse remove
                         .then(CommandManager.literal("remove")
+                                .requires(CommandManager.requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK))
 
                                 // /curse remove -> list
                                 .executes(ctx -> {
@@ -243,6 +250,7 @@ public class CurseCommand {
 
                         // /curse timer <minutes>
                         .then(CommandManager.literal("timer")
+                                .requires(CommandManager.requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK))
 
                                 // /curse timer  -> show current value
                                 .executes(ctx -> {
@@ -275,6 +283,7 @@ public class CurseCommand {
 
                         // /curse toggle
                         .then(CommandManager.literal("toggle")
+                                .requires(CommandManager.requirePermissionLevel(CommandManager.GAMEMASTERS_CHECK))
                                 .executes(ctx -> {
 
                                     CurseManager.autoEnabled = !CurseManager.autoEnabled;
@@ -289,6 +298,19 @@ public class CurseCommand {
 
                                     return 1;
                                 })
+                        )
+                        .then(CommandManager.literal("show")
+                                .requires(source -> PickyCurseHandler.curseState == PickyCurseHandler.ACTIVE)
+                                .then(CommandManager.literal("eaten")
+                                        .executes(ctx -> {
+
+                                            ServerPlayerEntity player = ctx.getSource().getPlayerOrThrow();
+
+                                            PickyCurseHandler.showEaten(player);
+
+                                            return 1;
+                                        })
+                                )
                         )
         );
     }

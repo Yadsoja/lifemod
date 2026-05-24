@@ -1,12 +1,22 @@
 package net.yadsoja.lifemod.curse;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.server.network.ServerPlayerEntity;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.text.Text;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.world.World;
+import net.yadsoja.lifemod.curse.manager.CurseManager;
+import net.yadsoja.lifemod.network.FreezePacket;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class FreezeCurseHandler {
-    private static int damageTickCounter = 0;
+
+    // freeze damage timer per player
+    private static final Map<UUID, Integer> damageTickCounter = new HashMap<>();
+
     private static final int MAX_LIGHT = 5;
 
     public static void init() {
@@ -14,35 +24,81 @@ public class FreezeCurseHandler {
     }
 
     private static void onTick(MinecraftServer server) {
-        damageTickCounter++;
-        if (!CurseManager.activeCurses.contains("freeze")) return;
+
+        // curse disabled → reset everything
+        if (!CurseManager.activeCurses.contains("freeze")) {
+
+            for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
+                ServerPlayNetworking.send(player, new FreezePacket(false));
+            }
+
+            return;
+        }
 
         for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
 
-            int light = server.getOverworld().getLightLevel(player.getBlockPos());
+            if (player.isCreative() || player.isSpectator()) {
+                continue;
+            }
 
+            UUID uuid = player.getUuid();
+
+            // NETHER IMMUNITY
+            if (player.getEntityWorld().getRegistryKey() == World.NETHER) {
+
+                player.setFrozenTicks(0);
+                damageTickCounter.put(uuid, 0);
+
+                ServerPlayNetworking.send(player, new FreezePacket(false));
+                continue;
+            }
+
+            int light = player.getEntityWorld().getLightLevel(player.getBlockPos());
             int frozen = player.getFrozenTicks();
 
+            damageTickCounter.putIfAbsent(uuid, 0);
+
+            // FREEZE ZONE
             if (light < MAX_LIGHT) {
 
-                player.setInPowderSnow(true);
-                player.setFrozenTicks(Math.min(player.getMinFreezeDamageTicks(), player.getFrozenTicks() + 3));
+                ServerPlayNetworking.send(player, new FreezePacket(true));
+
+                player.setFrozenTicks(
+                        Math.min(
+                                player.getMinFreezeDamageTicks(),
+                                frozen + 3
+                        )
+                );
 
             } else {
 
-                player.setInPowderSnow(false);
-                player.setFrozenTicks(Math.min(player.getMinFreezeDamageTicks(), player.getFrozenTicks() - 3));
+                ServerPlayNetworking.send(player, new FreezePacket(false));
+
+                player.setFrozenTicks(
+                        Math.max(0, frozen - 3)
+                );
             }
 
+            // FREEZE DAMAGE
+            if (player.getFrozenTicks() >= player.getMinFreezeDamageTicks()) {
 
-            if (player.getFrozenTicks() >= 140 && damageTickCounter >= 60) {
+                int ticks = damageTickCounter.get(uuid) + 1;
 
-                player.damage(
-                        server.getOverworld(),
-                        player.getDamageSources().freeze(),
-                        1.0f
-                );
-                damageTickCounter = 0;
+                if (ticks >= 60) {
+
+                    player.damage(
+                            player.getEntityWorld(),
+                            player.getDamageSources().freeze(),
+                            1.0f
+                    );
+
+                    ticks = 0;
+                }
+
+                damageTickCounter.put(uuid, ticks);
+
+            } else {
+                damageTickCounter.put(uuid, 0);
             }
         }
     }

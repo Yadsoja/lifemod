@@ -1,13 +1,7 @@
-package net.yadsoja.lifemod.curse;
-
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.minecraft.server.MinecraftServer;
+package net.yadsoja.lifemod.curse.manager;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import static net.yadsoja.lifemod.curse.CurseScheduler.BroadcastSound;
-import static net.yadsoja.lifemod.curse.CurseScheduler.BroadcastTitle;
 
 public class CurseManager {
 
