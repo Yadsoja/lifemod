@@ -7,7 +7,6 @@ import net.yadsoja.lifemod.command.CurseCommand;
 
 import net.yadsoja.lifemod.curse.*;
 import net.yadsoja.lifemod.curse.manager.CurseScheduler;
-import net.yadsoja.lifemod.network.ModNetworking;
 import net.yadsoja.lifemod.utils.ModContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,8 +37,6 @@ public class Lifemod implements ModInitializer {
 		InfestedCurseHandler.init();
 		BlindCurseHandler.init();
 		PickyCurseHandler.init();
-
-		ModNetworking.register();
 
 		ServerTickEvents.START_SERVER_TICK.register(server -> {
 			ModContext.server = server;

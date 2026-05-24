@@ -1,12 +1,10 @@
 package net.yadsoja.lifemod.curse;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.world.World;
 import net.yadsoja.lifemod.curse.manager.CurseManager;
-import net.yadsoja.lifemod.network.FreezePacket;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,8 +26,10 @@ public class FreezeCurseHandler {
         // curse disabled → reset everything
         if (!CurseManager.activeCurses.contains("freeze")) {
 
+            damageTickCounter.clear();
+
             for (ServerPlayerEntity player : server.getPlayerManager().getPlayerList()) {
-                ServerPlayNetworking.send(player, new FreezePacket(false));
+                player.setFrozenTicks(0);
             }
 
             return;
@@ -48,8 +48,6 @@ public class FreezeCurseHandler {
 
                 player.setFrozenTicks(0);
                 damageTickCounter.put(uuid, 0);
-
-                ServerPlayNetworking.send(player, new FreezePacket(false));
                 continue;
             }
 
@@ -58,10 +56,8 @@ public class FreezeCurseHandler {
 
             damageTickCounter.putIfAbsent(uuid, 0);
 
-            // FREEZE ZONE
+            // ❄️ FREEZE ZONE
             if (light < MAX_LIGHT) {
-
-                ServerPlayNetworking.send(player, new FreezePacket(true));
 
                 player.setFrozenTicks(
                         Math.min(
@@ -70,16 +66,25 @@ public class FreezeCurseHandler {
                         )
                 );
 
-            } else {
+                // ❄️ ANTI JUMP FOV SNAP (IMPORTANT PART)
+                player.setJumping(false);
 
-                ServerPlayNetworking.send(player, new FreezePacket(false));
+                if (!player.isOnGround()) {
+                    player.setVelocity(
+                            player.getVelocity().x,
+                            Math.min(player.getVelocity().y, 0), // cancel upward boost
+                            player.getVelocity().z
+                    );
+                }
+
+            } else {
 
                 player.setFrozenTicks(
                         Math.max(0, frozen - 3)
                 );
             }
 
-            // FREEZE DAMAGE
+            // ❄️ FREEZE DAMAGE
             if (player.getFrozenTicks() >= player.getMinFreezeDamageTicks()) {
 
                 int ticks = damageTickCounter.get(uuid) + 1;
